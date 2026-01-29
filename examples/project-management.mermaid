@@ -1,0 +1,32 @@
+erDiagram
+    USER ||--o{ PROJECT : owns
+    USER ||--o{ TASK : assigned_to
+    USER ||--o{ MESSAGE : creates
+    PROJECT ||--o{ TASK : contains
+    PROJECT ||--|| GOAL : achieves
+    TASK ||--|| STATUS : has
+    TASK }o--o{ DEPENDENCY : depends_on
+    TASK }o--o{ RESOURCE : requires
+    MESSAGE }o--|| TASK : references
+    GOAL ||--o{ MILESTONE : includes
+    MILESTONE }o--|| TASK : represents
+    
+    USER {
+        string name
+        string role
+    }
+    PROJECT {
+        string title
+        string domain
+        string priority
+    }
+    TASK {
+        string description
+        string complexity
+    }
+    GOAL {
+        string objective
+    }
+    STATUS {
+        string state
+    }

@@ -1,0 +1,46 @@
+graph TB
+    subgraph "Initialization"
+        A[Plugin Config<br/>with seedPath]
+        B{Existing<br/>worldview?}
+        C[Seed File<br/>.json or .mermaid]
+    end
+    
+    subgraph "Loading"
+        D[Load Existing<br/>Worldview]
+        E[Load Seed]
+        F[Empty<br/>Worldview]
+    end
+    
+    subgraph "Runtime"
+        G[WorldviewGraph<br/>with Initial Knowledge]
+        H[Evolution Loop]
+        I[Pattern Observer]
+    end
+    
+    subgraph "Storage"
+        J[runtime/worldviews/<br/>agentId.mermaid]
+    end
+    
+    A -->|check| B
+    B -->|Yes| D
+    B -->|No + seedPath| E
+    B -->|No + no seed| F
+    
+    C -->|parse| E
+    
+    D --> G
+    E --> G
+    F --> G
+    
+    G -->|save| J
+    J -->|load next time| D
+    
+    G --> H
+    H --> I
+    I -->|detects patterns| H
+    H -->|updates| G
+    
+    style C fill:#e8f5e9
+    style E fill:#fff4e1
+    style G fill:#e1f5ff
+    style J fill:#f3e5f5

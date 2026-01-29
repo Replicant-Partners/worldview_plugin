@@ -1,0 +1,251 @@
+{
+  "entities": [
+    {
+      "id": "USER",
+      "type": "USER",
+      "attributes": {
+        "description": "Human user interacting with the agent"
+      }
+    },
+    {
+      "id": "AGENT",
+      "type": "AGENT",
+      "attributes": {
+        "description": "AI agent instance"
+      }
+    },
+    {
+      "id": "CONVERSATION",
+      "type": "CONVERSATION",
+      "attributes": {
+        "description": "Ongoing dialogue session"
+      }
+    },
+    {
+      "id": "MESSAGE",
+      "type": "MESSAGE",
+      "attributes": {
+        "description": "Individual communication unit"
+      }
+    },
+    {
+      "id": "INTENT",
+      "type": "INTENT",
+      "attributes": {
+        "description": "User's underlying goal or purpose"
+      }
+    },
+    {
+      "id": "GOAL",
+      "type": "GOAL",
+      "attributes": {
+        "description": "High-level objective"
+      }
+    },
+    {
+      "id": "ACTION",
+      "type": "ACTION",
+      "attributes": {
+        "description": "Specific executable task"
+      }
+    },
+    {
+      "id": "TOPIC",
+      "type": "TOPIC",
+      "attributes": {
+        "description": "Subject matter or domain"
+      }
+    },
+    {
+      "id": "CONTEXT",
+      "type": "CONTEXT",
+      "attributes": {
+        "description": "Situational information"
+      }
+    },
+    {
+      "id": "PREFERENCE",
+      "type": "PREFERENCE",
+      "attributes": {
+        "description": "User's stated preferences"
+      }
+    },
+    {
+      "id": "ORGANISM",
+      "type": "ORGANISM",
+      "attributes": {
+        "description": "Biological organism"
+      }
+    },
+    {
+      "id": "PROCESS",
+      "type": "PROCESS",
+      "attributes": {
+        "description": "Bio-manufacturing process"
+      }
+    },
+    {
+      "id": "MATERIAL",
+      "type": "MATERIAL",
+      "attributes": {
+        "description": "Biomaterial or substrate"
+      }
+    },
+    {
+      "id": "EQUIPMENT",
+      "type": "EQUIPMENT",
+      "attributes": {
+        "description": "Laboratory or manufacturing equipment"
+      }
+    },
+    {
+      "id": "MEASUREMENT",
+      "type": "MEASUREMENT",
+      "attributes": {
+        "description": "Quantitative observation"
+      }
+    },
+    {
+      "id": "EXPERIMENT",
+      "type": "EXPERIMENT",
+      "attributes": {
+        "description": "Scientific experiment or trial"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "source": "USER",
+      "target": "CONVERSATION",
+      "type": "participates_in",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "AGENT",
+      "target": "CONVERSATION",
+      "type": "participates_in",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "USER",
+      "target": "MESSAGE",
+      "type": "creates",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "AGENT",
+      "target": "MESSAGE",
+      "type": "creates",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "CONVERSATION",
+      "target": "MESSAGE",
+      "type": "contains",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "MESSAGE",
+      "target": "INTENT",
+      "type": "expresses",
+      "cardinality": "||--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "MESSAGE",
+      "target": "TOPIC",
+      "type": "discusses",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "INTENT",
+      "target": "GOAL",
+      "type": "serves",
+      "cardinality": "}o--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "USER",
+      "target": "GOAL",
+      "type": "has",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "GOAL",
+      "target": "ACTION",
+      "type": "requires",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "USER",
+      "target": "PREFERENCE",
+      "type": "defines",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "USER",
+      "target": "CONTEXT",
+      "type": "operates_in",
+      "cardinality": "||--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "ORGANISM",
+      "target": "PROCESS",
+      "type": "performs",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "PROCESS",
+      "target": "MATERIAL",
+      "type": "produces",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "PROCESS",
+      "target": "MATERIAL",
+      "type": "consumes",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "PROCESS",
+      "target": "EQUIPMENT",
+      "type": "uses",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "EXPERIMENT",
+      "target": "PROCESS",
+      "type": "tests",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "EXPERIMENT",
+      "target": "MEASUREMENT",
+      "type": "generates",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "MEASUREMENT",
+      "target": "PROCESS",
+      "type": "observes",
+      "cardinality": "}o--||",
+      "confidence": 1.0
+    }
+  ]
+}

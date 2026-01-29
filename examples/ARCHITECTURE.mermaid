@@ -1,0 +1,48 @@
+graph TB
+    subgraph "ElizaOS Runtime"
+        A[Agent Conversations]
+        B[Memory Manager]
+        C[Action Registry]
+    end
+    
+    subgraph "Worldview Plugin"
+        D[Evolution Loop<br/>60s interval]
+        E[Pattern Observer]
+        F[Worldview Graph]
+        G[Suggestion Queue]
+    end
+    
+    subgraph "Storage"
+        H[runtime/worldviews/<br/>agentId.mermaid]
+    end
+    
+    subgraph "Pattern Detection"
+        I[Entity Extraction]
+        J[Co-occurrence Analysis]
+        K[Cardinality Inference]
+        L[Confidence Scoring]
+    end
+    
+    A -->|generates| B
+    B -->|recent memories<br/>last 50| D
+    D -->|analyze| E
+    
+    E -->|extract entities| I
+    I -->|find patterns| J
+    J -->|infer relationships| K
+    K -->|score| L
+    
+    L -->|suggestions| E
+    E -->|high confidence<br/>>0.9| F
+    E -->|medium confidence<br/>0.7-0.9| G
+    
+    F -->|save| H
+    H -->|load| F
+    
+    F -->|register| C
+    C -->|GET_WORLDVIEW<br/>QUERY_WORLDVIEW<br/>GET_SUGGESTIONS| F
+    
+    style D fill:#e1f5ff
+    style E fill:#fff4e1
+    style F fill:#e8f5e9
+    style H fill:#f3e5f5

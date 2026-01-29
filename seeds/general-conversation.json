@@ -1,0 +1,125 @@
+{
+  "entities": [
+    {
+      "id": "USER",
+      "type": "USER",
+      "attributes": {
+        "description": "Person interacting with the agent"
+      }
+    },
+    {
+      "id": "AGENT",
+      "type": "AGENT",
+      "attributes": {
+        "description": "AI assistant"
+      }
+    },
+    {
+      "id": "CONVERSATION",
+      "type": "CONVERSATION",
+      "attributes": {
+        "description": "Dialogue session"
+      }
+    },
+    {
+      "id": "MESSAGE",
+      "type": "MESSAGE",
+      "attributes": {
+        "description": "Individual message"
+      }
+    },
+    {
+      "id": "INTENT",
+      "type": "INTENT",
+      "attributes": {
+        "description": "What the user wants to accomplish"
+      }
+    },
+    {
+      "id": "TOPIC",
+      "type": "TOPIC",
+      "attributes": {
+        "description": "Subject being discussed"
+      }
+    },
+    {
+      "id": "TASK",
+      "type": "TASK",
+      "attributes": {
+        "description": "Actionable item"
+      }
+    },
+    {
+      "id": "CONTEXT",
+      "type": "CONTEXT",
+      "attributes": {
+        "description": "Background information"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "source": "USER",
+      "target": "CONVERSATION",
+      "type": "participates_in",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "AGENT",
+      "target": "CONVERSATION",
+      "type": "participates_in",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "CONVERSATION",
+      "target": "MESSAGE",
+      "type": "contains",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "USER",
+      "target": "MESSAGE",
+      "type": "sends",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "AGENT",
+      "target": "MESSAGE",
+      "type": "responds_with",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "MESSAGE",
+      "target": "INTENT",
+      "type": "expresses",
+      "cardinality": "||--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "MESSAGE",
+      "target": "TOPIC",
+      "type": "discusses",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "INTENT",
+      "target": "TASK",
+      "type": "leads_to",
+      "cardinality": "||--o|",
+      "confidence": 1.0
+    },
+    {
+      "source": "CONVERSATION",
+      "target": "CONTEXT",
+      "type": "has",
+      "cardinality": "||--||",
+      "confidence": 1.0
+    }
+  ]
+}

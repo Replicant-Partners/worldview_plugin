@@ -1,0 +1,174 @@
+{
+  "entities": [
+    {
+      "id": "PLAYER",
+      "type": "PLAYER",
+      "attributes": {
+        "description": "Person playing the game/experience"
+      }
+    },
+    {
+      "id": "AGENT",
+      "type": "AGENT",
+      "attributes": {
+        "description": "AI character or NPC"
+      }
+    },
+    {
+      "id": "INTERACTION",
+      "type": "INTERACTION",
+      "attributes": {
+        "description": "Player-agent exchange"
+      }
+    },
+    {
+      "id": "GAME_STATE",
+      "type": "GAME_STATE",
+      "attributes": {
+        "description": "Current state of the experience"
+      }
+    },
+    {
+      "id": "NARRATIVE",
+      "type": "NARRATIVE",
+      "attributes": {
+        "description": "Story being told"
+      }
+    },
+    {
+      "id": "CHOICE",
+      "type": "CHOICE",
+      "attributes": {
+        "description": "Decision point for player"
+      }
+    },
+    {
+      "id": "CONSEQUENCE",
+      "type": "CONSEQUENCE",
+      "attributes": {
+        "description": "Outcome of player action"
+      }
+    },
+    {
+      "id": "MECHANIC",
+      "type": "MECHANIC",
+      "attributes": {
+        "description": "Game rule or system"
+      }
+    },
+    {
+      "id": "OBJECTIVE",
+      "type": "OBJECTIVE",
+      "attributes": {
+        "description": "Player goal"
+      }
+    },
+    {
+      "id": "EMOTION",
+      "type": "EMOTION",
+      "attributes": {
+        "description": "Emotional response"
+      }
+    },
+    {
+      "id": "THEME",
+      "type": "THEME",
+      "attributes": {
+        "description": "Conceptual motif"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "source": "PLAYER",
+      "target": "INTERACTION",
+      "type": "initiates",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "AGENT",
+      "target": "INTERACTION",
+      "type": "responds_to",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "INTERACTION",
+      "target": "GAME_STATE",
+      "type": "modifies",
+      "cardinality": "}o--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "GAME_STATE",
+      "target": "NARRATIVE",
+      "type": "drives",
+      "cardinality": "||--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "NARRATIVE",
+      "target": "CHOICE",
+      "type": "presents",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "PLAYER",
+      "target": "CHOICE",
+      "type": "makes",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "CHOICE",
+      "target": "CONSEQUENCE",
+      "type": "leads_to",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "CONSEQUENCE",
+      "target": "GAME_STATE",
+      "type": "updates",
+      "cardinality": "}o--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "MECHANIC",
+      "target": "INTERACTION",
+      "type": "governs",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "PLAYER",
+      "target": "OBJECTIVE",
+      "type": "pursues",
+      "cardinality": "||--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "OBJECTIVE",
+      "target": "NARRATIVE",
+      "type": "shapes",
+      "cardinality": "}o--||",
+      "confidence": 1.0
+    },
+    {
+      "source": "INTERACTION",
+      "target": "EMOTION",
+      "type": "evokes",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    },
+    {
+      "source": "NARRATIVE",
+      "target": "THEME",
+      "type": "expresses",
+      "cardinality": "}o--o{",
+      "confidence": 1.0
+    }
+  ]
+}

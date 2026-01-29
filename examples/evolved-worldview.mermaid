@@ -1,0 +1,41 @@
+erDiagram
+    USER ||--o{ MESSAGE : creates
+    USER ||--o{ GOAL : has
+    USER ||--o{ PREFERENCE : defines
+    USER ||--|| CONTEXT : operates_in
+    MESSAGE ||--|| INTENT : expresses
+    MESSAGE }o--o{ TOPIC : discusses
+    MESSAGE }o--|| CHANNEL : sent_via
+    INTENT }o--|| GOAL : serves
+    GOAL ||--o{ ACTION : requires
+    ACTION ||--|| TOOL : uses
+    PREFERENCE }o--|| DOMAIN : applies_to
+    CONTEXT }o--o{ CONSTRAINT : includes
+    
+    USER {
+        string name
+        string role
+        timestamp last_active
+    }
+    MESSAGE {
+        string content
+        string sentiment
+        timestamp created_at
+    }
+    INTENT {
+        string type
+        float confidence
+    }
+    GOAL {
+        string description
+        string status
+        string priority
+    }
+    ACTION {
+        string name
+        string status
+    }
+    PREFERENCE {
+        string key
+        string value
+    }
