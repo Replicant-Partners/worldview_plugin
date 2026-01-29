@@ -1,74 +1,76 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { join } from 'path'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
 import {
   Entity,
   Relationship,
   Cardinality,
   Suggestion,
   WorldviewState,
-  CARDINALITY_SEMANTICS
-} from './types'
+  CARDINALITY_SEMANTICS,
+} from "./types";
 
 export class WorldviewGraph {
-  private entities: Map<string, Entity>
-  private relationships: Map<string, Relationship>
-  private version: number
-  private filePath: string
+  private entities: Map<string, Entity>;
+  private relationships: Map<string, Relationship>;
+  private version: number;
+  private filePath: string;
 
   constructor(filePath: string) {
-    this.entities = new Map()
-    this.relationships = new Map()
-    this.version = 0
-    this.filePath = filePath
+    this.entities = new Map();
+    this.relationships = new Map();
+    this.version = 0;
+    this.filePath = filePath;
   }
 
   /**
    * Load worldview from Mermaid ER diagram file
    */
   static async load(filePath: string): Promise<WorldviewGraph> {
-    const graph = new WorldviewGraph(filePath)
-    
+    const graph = new WorldviewGraph(filePath);
+
     if (!existsSync(filePath)) {
       // Initialize empty graph
-      await graph.save()
-      return graph
+      await graph.save();
+      return graph;
     }
 
-    const content = readFileSync(filePath, 'utf-8')
-    graph.fromMermaid(content)
-    return graph
+    const content = readFileSync(filePath, "utf-8");
+    graph.fromMermaid(content);
+    return graph;
   }
 
   /**
    * Parse Mermaid ER diagram into graph structure
    */
   private fromMermaid(diagram: string): void {
-    const lines = diagram.split('\n').map(l => l.trim())
-    
+    const lines = diagram.split("\n").map((l) => l.trim());
+
     for (const line of lines) {
-      if (line.startsWith('erDiagram') || line === '') continue
+      if (line.startsWith("erDiagram") || line === "") continue;
 
       // Parse entity definitions: ENTITY { ... }
-      if (line.includes('{') && !line.includes('||') && !line.includes('}o')) {
-        const entityMatch = line.match(/(\w+)\s*{/)
+      if (line.includes("{") && !line.includes("||") && !line.includes("}o")) {
+        const entityMatch = line.match(/(\w+)\s*{/);
         if (entityMatch) {
-          const entityId = entityMatch[1]
+          const entityId = entityMatch[1];
           this.addEntity({
             id: entityId,
             type: entityId,
             attributes: {},
             firstSeen: new Date(),
             lastSeen: new Date(),
-            observationCount: 1
-          })
+            observationCount: 1,
+          });
         }
       }
 
       // Parse relationships: ENTITY1 ||--o{ ENTITY2 : relationship_type
-      const relMatch = line.match(/(\w+)\s+([\|\}][\|\o]--[\|\o][\{\|])\s+(\w+)\s*:\s*(\w+)/)
+      const relMatch = line.match(
+        /(\w+)\s+([\|\}][\|\o]--[\|\o][\{\|])\s+(\w+)\s*:\s*(\w+)/,
+      );
       if (relMatch) {
-        const [, source, cardinality, target, relType] = relMatch
-        
+        const [, source, cardinality, target, relType] = relMatch;
+
         // Ensure entities exist
         if (!this.entities.has(source)) {
           this.addEntity({
@@ -77,8 +79,8 @@ export class WorldviewGraph {
             attributes: {},
             firstSeen: new Date(),
             lastSeen: new Date(),
-            observationCount: 1
-          })
+            observationCount: 1,
+          });
         }
         if (!this.entities.has(target)) {
           this.addEntity({
@@ -87,8 +89,8 @@ export class WorldviewGraph {
             attributes: {},
             firstSeen: new Date(),
             lastSeen: new Date(),
-            observationCount: 1
-          })
+            observationCount: 1,
+          });
         }
 
         this.addRelationship({
@@ -99,8 +101,8 @@ export class WorldviewGraph {
           cardinality: cardinality as Cardinality,
           confidence: 1.0,
           observations: 1,
-          metadata: {}
-        })
+          metadata: {},
+        });
       }
     }
   }
@@ -109,55 +111,55 @@ export class WorldviewGraph {
    * Serialize graph to Mermaid ER diagram format
    */
   toMermaid(): string {
-    let diagram = 'erDiagram\n'
-    
+    let diagram = "erDiagram\n";
+
     // Output relationships first
     for (const rel of this.relationships.values()) {
-      diagram += `    ${rel.source} ${rel.cardinality} ${rel.target} : ${rel.type}\n`
+      diagram += `    ${rel.source} ${rel.cardinality} ${rel.target} : ${rel.type}\n`;
     }
 
-    diagram += '\n'
+    diagram += "\n";
 
     // Output entity definitions with attributes
     for (const entity of this.entities.values()) {
-      const hasAttributes = Object.keys(entity.attributes).length > 0
+      const hasAttributes = Object.keys(entity.attributes).length > 0;
       if (hasAttributes) {
-        diagram += `    ${entity.id} {\n`
+        diagram += `    ${entity.id} {\n`;
         for (const [key, value] of Object.entries(entity.attributes)) {
-          diagram += `        string ${key}\n`
+          diagram += `        string ${key}\n`;
         }
-        diagram += `    }\n`
+        diagram += `    }\n`;
       }
     }
 
-    return diagram
+    return diagram;
   }
 
   /**
    * Save worldview to Mermaid file
    */
   async save(): Promise<void> {
-    const dir = join(this.filePath, '..')
+    const dir = join(this.filePath, "..");
     if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true })
+      mkdirSync(dir, { recursive: true });
     }
 
-    const content = this.toMermaid()
-    writeFileSync(this.filePath, content, 'utf-8')
-    this.version++
+    const content = this.toMermaid();
+    writeFileSync(this.filePath, content, "utf-8");
+    this.version++;
   }
 
   /**
    * Add or update an entity
    */
   addEntity(entity: Entity): void {
-    const existing = this.entities.get(entity.id)
+    const existing = this.entities.get(entity.id);
     if (existing) {
-      existing.lastSeen = new Date()
-      existing.observationCount++
-      Object.assign(existing.attributes, entity.attributes)
+      existing.lastSeen = new Date();
+      existing.observationCount++;
+      Object.assign(existing.attributes, entity.attributes);
     } else {
-      this.entities.set(entity.id, entity)
+      this.entities.set(entity.id, entity);
     }
   }
 
@@ -165,12 +167,12 @@ export class WorldviewGraph {
    * Add or update a relationship
    */
   addRelationship(rel: Relationship): void {
-    const existing = this.relationships.get(rel.id)
+    const existing = this.relationships.get(rel.id);
     if (existing) {
-      existing.observations++
-      existing.confidence = Math.min(1.0, existing.confidence + 0.1)
+      existing.observations++;
+      existing.confidence = Math.min(1.0, existing.confidence + 0.1);
     } else {
-      this.relationships.set(rel.id, rel)
+      this.relationships.set(rel.id, rel);
     }
   }
 
@@ -181,18 +183,18 @@ export class WorldviewGraph {
     for (const rel of this.relationships.values()) {
       if (rel.source === source && rel.target === target) {
         if (!type || rel.type === type) {
-          return true
+          return true;
         }
       }
     }
-    return false
+    return false;
   }
 
   /**
    * Get entity by id
    */
   getEntity(id: string): Entity | undefined {
-    return this.entities.get(id)
+    return this.entities.get(id);
   }
 
   /**
@@ -200,19 +202,23 @@ export class WorldviewGraph {
    */
   getRelationships(entityId: string): Relationship[] {
     return Array.from(this.relationships.values()).filter(
-      rel => rel.source === entityId || rel.target === entityId
-    )
+      (rel) => rel.source === entityId || rel.target === entityId,
+    );
   }
 
   /**
    * Query entities by pattern
    */
   query(pattern: { type?: string; attribute?: string; value?: any }): Entity[] {
-    return Array.from(this.entities.values()).filter(entity => {
-      if (pattern.type && entity.type !== pattern.type) return false
-      if (pattern.attribute && entity.attributes[pattern.attribute] !== pattern.value) return false
-      return true
-    })
+    return Array.from(this.entities.values()).filter((entity) => {
+      if (pattern.type && entity.type !== pattern.type) return false;
+      if (
+        pattern.attribute &&
+        entity.attributes[pattern.attribute] !== pattern.value
+      )
+        return false;
+      return true;
+    });
   }
 
   /**
@@ -220,14 +226,18 @@ export class WorldviewGraph {
    */
   apply(suggestion: Suggestion): void {
     switch (suggestion.type) {
-      case 'new_entity':
+      case "new_entity":
         if (suggestion.data.entity) {
-          this.addEntity(suggestion.data.entity as Entity)
+          this.addEntity(suggestion.data.entity as Entity);
         }
-        break
-      
-      case 'new_relationship':
-        if (suggestion.data.source && suggestion.data.target && suggestion.data.relationship) {
+        break;
+
+      case "new_relationship":
+        if (
+          suggestion.data.source &&
+          suggestion.data.target &&
+          suggestion.data.relationship
+        ) {
           this.addRelationship({
             id: `${suggestion.data.source}_${suggestion.data.relationship}_${suggestion.data.target}`,
             type: suggestion.data.relationship,
@@ -236,36 +246,44 @@ export class WorldviewGraph {
             cardinality: suggestion.data.cardinality || Cardinality.ManyToMany,
             confidence: suggestion.confidence,
             observations: 1,
-            metadata: { auto_generated: true }
-          })
+            metadata: { auto_generated: true },
+          });
         }
-        break
-      
-      case 'modify_cardinality':
-        if (suggestion.data.source && suggestion.data.target && suggestion.data.cardinality) {
-          const relId = `${suggestion.data.source}_${suggestion.data.relationship}_${suggestion.data.target}`
-          const rel = this.relationships.get(relId)
+        break;
+
+      case "modify_cardinality":
+        if (
+          suggestion.data.source &&
+          suggestion.data.target &&
+          suggestion.data.cardinality
+        ) {
+          const relId = `${suggestion.data.source}_${suggestion.data.relationship}_${suggestion.data.target}`;
+          const rel = this.relationships.get(relId);
           if (rel) {
-            rel.cardinality = suggestion.data.cardinality
+            rel.cardinality = suggestion.data.cardinality;
           }
         }
-        break
+        break;
     }
   }
 
   /**
    * Get graph statistics
    */
-  getStats(): { entities: number; relationships: number; avgConnections: number } {
-    const entityCount = this.entities.size
-    const relCount = this.relationships.size
-    const avgConnections = entityCount > 0 ? relCount / entityCount : 0
+  getStats(): {
+    entities: number;
+    relationships: number;
+    avgConnections: number;
+  } {
+    const entityCount = this.entities.size;
+    const relCount = this.relationships.size;
+    const avgConnections = entityCount > 0 ? relCount / entityCount : 0;
 
     return {
       entities: entityCount,
       relationships: relCount,
-      avgConnections
-    }
+      avgConnections,
+    };
   }
 
   /**
@@ -276,7 +294,7 @@ export class WorldviewGraph {
       entities: new Map(this.entities),
       relationships: new Map(this.relationships),
       version: this.version,
-      lastModified: new Date()
-    }
+      lastModified: new Date(),
+    };
   }
 }
