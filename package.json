@@ -31,5 +31,13 @@
   "files": [
     "dist",
     "README.md"
-  ]
+  ],
+  "dependencies": {
+    "@lancedb/lancedb": "^0.23.0",
+    "@types/natural": "^5.1.5",
+    "@types/string-similarity": "^4.0.2",
+    "apache-arrow": "^15.0.0",
+    "natural": "^8.1.0",
+    "string-similarity": "^4.0.4"
+  }
 }
