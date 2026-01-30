@@ -2,9 +2,8 @@ import { Entity } from "../types";
 import {
   IAgentRuntime,
   elizaLogger,
-  generateText,
-  ModelClass,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
+import { generateText, ModelClass } from "../compat/eliza-compat";
 
 /**
  * LexicalEnricher: LLM-powered semantic understanding of entities
@@ -13,77 +12,37 @@ import {
  * Generates context-aware meanings using LLMs:
  * - General meaning: What is this concept?
  * - Context meaning: What does it mean in this domain?
- * - Content meaning: Additional info from entity attributes
  */
-
 export class LexicalEnricher {
-  constructor(
-    private runtime: IAgentRuntime,
-    private context: string = "general knowledge",
-  ) {}
+  private runtime: IAgentRuntime;
+  private context: string;
+  private cache: Map<string, string>;
 
-  /**
-   * Extract any textual descriptions from entity attributes
-   */
-  private extractContent(entity: Entity): string {
-    const contentFields = [
-      "description",
-      "label",
-      "comment",
-      "definition",
-      "note",
-    ];
-
-    const contents: string[] = [];
-
-    for (const field of contentFields) {
-      if (entity.attributes[field]) {
-        contents.push(String(entity.attributes[field]));
-      }
-    }
-
-    return contents.join(". ");
+  constructor(runtime: IAgentRuntime, context: string = "") {
+    this.runtime = runtime;
+    this.context = context;
+    this.cache = new Map();
   }
 
   /**
-   * Generate LLM prompt for entity meaning extraction
+   * Enrich an entity with lexical (meaning-based) content
+   * Uses LLM to generate context-aware definition
    */
-  private generatePrompt(entity: Entity, syntactic: string): string {
-    const content = this.extractContent(entity);
-    const hasContent = content.length > 0;
-
-    let prompt = `Question: What is the meaning of "${syntactic}"?\n`;
-    prompt += `Context: ${this.context}\n`;
-
-    if (hasContent) {
-      prompt += `Additional Information: ${content}\n`;
+  async enrich(entity: Entity): Promise<string> {
+    // Check cache first
+    const cacheKey = `${entity.id}:${this.context}`;
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey)!;
     }
 
-    prompt += `\nProvide a concise definition (2-3 sentences) of what "${syntactic}" means in the context of ${this.context}.`;
+    // Extract syntactic representation (for LLM prompt)
+    const syntactic = this.extractSyntactic(entity);
 
-    if (hasContent) {
-      prompt += ` Consider the additional information provided.`;
-    }
+    // Build prompt for meaning generation
+    const prompt = this.buildPrompt(entity.id, syntactic, this.context);
 
-    prompt += ` Be specific and focus on its role, purpose, or characteristics.`;
-
-    return prompt;
-  }
-
-  /**
-   * Enrich entity with lexical (meaning) information using LLM
-   */
-  async enrich(entity: Entity, syntactic: string): Promise<string> {
     try {
-      const prompt = this.generatePrompt(entity, syntactic);
-
-      elizaLogger.debug("[LexicalEnricher] Generating meaning", {
-        entity: entity.id,
-        syntactic,
-        context: this.context,
-      });
-
-      // Use runtime's LLM to generate meaning
+      // Generate meaning using LLM
       const response = await generateText({
         runtime: this.runtime,
         context: prompt,
@@ -92,46 +51,64 @@ export class LexicalEnricher {
 
       const meaning = response.trim();
 
-      elizaLogger.debug("[LexicalEnricher] Generated meaning", {
+      elizaLogger.debug({
         entity: entity.id,
         length: meaning.length,
-      });
+      }, "[LexicalEnricher] Generated meaning");
+
+      // Cache for future use
+      this.cache.set(cacheKey, meaning);
 
       return meaning;
     } catch (error) {
-      elizaLogger.error("[LexicalEnricher] Error generating meaning", {
+      elizaLogger.error({
         entity: entity.id,
         error,
-      });
+      }, "[LexicalEnricher] Failed to generate meaning");
 
-      // Fallback: use syntactic + any available content
-      const content = this.extractContent(entity);
-      return content || syntactic;
+      // Fallback: Use syntactic representation
+      return syntactic;
     }
   }
 
   /**
-   * Batch enrich multiple entities
-   * Processes sequentially to avoid rate limits
+   * Extract syntactic representation from entity
+   * Used as basis for LLM prompt
    */
-  async enrichBatch(
-    entities: Entity[],
-    syntactics: string[],
-  ): Promise<string[]> {
-    const results: string[] = [];
-
-    for (let i = 0; i < entities.length; i++) {
-      const meaning = await this.enrich(entities[i], syntactics[i]);
-      results.push(meaning);
-    }
-
-    return results;
+  private extractSyntactic(entity: Entity): string {
+    // Simple approach: normalize ID and extract components
+    const normalized = entity.id.replace(/[-_]/g, " ").toLowerCase();
+    return normalized;
   }
 
   /**
-   * Update the context for domain-specific enrichment
+   * Build LLM prompt for lexical meaning generation
+   */
+  private buildPrompt(
+    entityName: string,
+    syntactic: string,
+    context: string
+  ): string {
+    const contextNote = context
+      ? `in the context of ${context}`
+      : "in general terms";
+
+    return `Define "${entityName}" (syntactically: "${syntactic}") ${contextNote}. 
+Provide a concise, technical definition in 1-2 sentences. 
+Focus on what it IS and what it DOES.`;
+  }
+
+  /**
+   * Set context for lexical enrichment
    */
   setContext(context: string): void {
     this.context = context;
+  }
+
+  /**
+   * Clear cache
+   */
+  clearCache(): void {
+    this.cache.clear();
   }
 }

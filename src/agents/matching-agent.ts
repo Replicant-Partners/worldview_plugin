@@ -1,4 +1,4 @@
-import { elizaLogger, IAgentRuntime } from "@ai16z/eliza";
+import { elizaLogger, IAgentRuntime } from "@elizaos/core";
 import { WorldviewGraph } from "../graph";
 import { VectorStore, SearchResult } from "../storage/vector-store";
 import { Entity, Suggestion, Cardinality } from "../types";

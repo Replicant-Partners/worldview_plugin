@@ -5,7 +5,7 @@ import { LexicalEnricher } from "./lexical-enricher";
 import { SemanticEnricher } from "./semantic-enricher";
 import { EmbeddingService } from "../storage/embedding-service";
 import { LRUCache } from "../utils/cache";
-import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
+import { IAgentRuntime, elizaLogger } from "@elizaos/core";
 
 /**
  * EntityEnrichmentService: Orchestrates multi-faceted entity enrichment

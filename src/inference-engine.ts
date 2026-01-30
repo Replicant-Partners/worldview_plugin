@@ -7,7 +7,7 @@ import {
   Cardinality,
 } from "./types";
 import { WorldviewGraph } from "./graph";
-import { elizaLogger } from "@ai16z/eliza";
+import { elizaLogger } from "@elizaos/core";
 
 /**
  * InferenceEngine: Execute logical inference rules on the worldview graph

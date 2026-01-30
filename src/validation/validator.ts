@@ -1,9 +1,8 @@
 import {
   IAgentRuntime,
   elizaLogger,
-  generateText,
-  ModelClass,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
+import { generateText, ModelClass } from "../compat/eliza-compat";
 import { Entity, Suggestion, ValidationResult } from "../types";
 
 /**
@@ -48,15 +47,15 @@ export class SuggestionValidator {
     if (modelName) {
       // Map specific models to ModelClass
       if (
-        modelName.includes("gpt-4") ||
-        modelName.includes("claude-opus") ||
-        modelName.includes("claude-sonnet-4")
+        String(modelName).includes("gpt-4") ||
+        String(modelName).includes("claude-opus") ||
+        String(modelName).includes("claude-sonnet-4")
       ) {
         modelClass = ModelClass.LARGE;
       } else if (
-        modelName.includes("gpt-3.5") ||
-        modelName.includes("claude-sonnet-3") ||
-        modelName.includes("claude-haiku")
+        String(modelName).includes("gpt-3.5") ||
+        String(modelName).includes("claude-sonnet-3") ||
+        String(modelName).includes("claude-haiku")
       ) {
         modelClass = ModelClass.SMALL;
       }
@@ -65,7 +64,7 @@ export class SuggestionValidator {
     this.config = {
       enabled: config.enabled ?? true,
       model: modelClass,
-      modelName: modelName,
+      modelName: String(modelName),
       maxRetries: config.maxRetries ?? 2,
       minConfidenceBoost: config.minConfidenceBoost ?? 0.1,
     };

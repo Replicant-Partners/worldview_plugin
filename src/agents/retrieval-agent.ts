@@ -1,4 +1,4 @@
-import { Memory, elizaLogger } from "@ai16z/eliza";
+import { Memory, elizaLogger } from "@elizaos/core";
 import { WorldviewGraph } from "../graph";
 import { EntityEnrichmentService } from "../enrichment/enrichment-service";
 import { VectorStore } from "../storage/vector-store";

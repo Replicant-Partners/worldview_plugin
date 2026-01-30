@@ -15,7 +15,7 @@ import { InferenceEngine } from "./inference-engine";
 import { getDefaultRules } from "./inference/rules";
 import { VectorStore } from "./storage/vector-store";
 import { EntityEnrichmentService } from "./enrichment/enrichment-service";
-import { elizaLogger, IAgentRuntime } from "@ai16z/eliza";
+import { elizaLogger, IAgentRuntime } from "@elizaos/core";
 
 export interface WorldviewGraphConfig {
   enableInference?: boolean;

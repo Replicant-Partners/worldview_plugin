@@ -1,7 +1,7 @@
 import { connect, Connection, Table } from "@lancedb/lancedb";
 import { VectorRecord } from "../types";
 import { VectorStore, SearchFilters, SearchResult } from "./vector-store";
-import { elizaLogger } from "@ai16z/eliza";
+import { elizaLogger } from "@elizaos/core";
 import { join } from "path";
 
 /**

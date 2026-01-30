@@ -4,7 +4,7 @@ import {
   Memory,
   State,
   elizaLogger,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import { join } from "path";
 import { WorldviewGraph, WorldviewGraphConfig } from "./graph";
 import { PatternObserver } from "./observer";
