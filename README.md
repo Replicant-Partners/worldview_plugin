@@ -2,6 +2,11 @@
 
 An ElizaOS plugin that provides agents with evolving ontological worldviews. Agents continuously learn and refine their understanding of entities and relationships through interaction, creating a semantic scaffolding for interpretation.
 
+## Version Compatibility
+
+- **v0.2.0+**: Compatible with ElizaOS 1.7.0+ (`@elizaos/core`)
+- **v0.1.0**: Compatible with ElizaOS 0.1.x (`@ai16z/eliza`)
+
 ## Features
 
 - **Continuous Evolution**: Automatically detects patterns in conversations and evolves the ontology
@@ -15,29 +20,32 @@ An ElizaOS plugin that provides agents with evolving ontological worldviews. Age
 
 ```bash
 npm install @eliza/plugin-worldview
+# or
+bun add @eliza/plugin-worldview
 ```
 
 ## Quick Start
 
 ```typescript
 import { createWorldviewPlugin } from '@eliza/plugin-worldview'
-import { AgentRuntime } from '@ai16z/eliza'
+import { type Character } from '@elizaos/core'
 
-// Create plugin with optional config
-const worldviewPlugin = createWorldviewPlugin({
-  evolutionIntervalMs: 60000,    // Check for patterns every minute
-  autoApplyThreshold: 0.9,        // Auto-apply suggestions with >90% confidence
-  minObservations: 3,             // Require 3+ co-occurrences for patterns
-  memoryLookback: 50              // Analyze last 50 memories
-})
-
-// Add to agent
-const runtime = new AgentRuntime({
-  plugins: [worldviewPlugin],
-  // ... other config
-})
-
-await runtime.initialize()
+// In your character definition
+export const character: Character = {
+  name: "MyAgent",
+  plugins: [
+    "@elizaos/plugin-bootstrap",
+    "@elizaos/plugin-sql",
+    // Add worldview plugin with configuration
+    createWorldviewPlugin({
+      evolutionIntervalMs: 60000,    // Check for patterns every minute
+      autoApplyThreshold: 0.9,        // Auto-apply suggestions with >90% confidence
+      minObservations: 3,             // Require 3+ co-occurrences for patterns
+      memoryLookback: 50              // Analyze last 50 memories
+    }) as any, // TypeScript workaround - Plugin objects are supported at runtime
+  ],
+  // ... rest of character config
+}
 ```
 
 ## How It Works
@@ -108,7 +116,7 @@ USER ||--o{ GOAL
 → If user context ends, their goals become less relevant
 
 // ManyToMany implies association
-MESSAGE }o--o{ TOPIC  
+MESSAGE }o--o{ TOPIC
 → "Messages can cover many topics, topics appear in many messages"
 → No ownership, pure association
 
@@ -128,7 +136,7 @@ erDiagram
     MESSAGE ||--|| INTENT : expresses
     INTENT }o--|| GOAL : serves
     MESSAGE }o--o{ TOPIC : discusses
-    
+
     USER {
         string name
         string context
@@ -141,25 +149,13 @@ erDiagram
 
 ## API Reference
 
-### Plugin Methods
-
-```typescript
-// Get current worldview graph
-const graph = plugin.getGraph()
-
-// Get pending suggestions
-const suggestions = plugin.getSuggestions()
-
-// Clear suggestion queue
-plugin.clearSuggestions()
-
-// Manually apply suggestion
-plugin.applySuggestion(suggestion)
-```
-
 ### Graph Methods
 
 ```typescript
+// Get the worldview graph (from plugin state)
+const state = pluginState.get(runtime.agentId)
+const graph = state?.graph
+
 // Query entities
 const users = graph.query({ type: 'USER' })
 
@@ -186,29 +182,22 @@ The plugin registers these actions with the runtime:
 
 ### GET_WORLDVIEW
 Get the current worldview as a Mermaid diagram:
-
-```typescript
-const result = await runtime.executeAction('GET_WORLDVIEW', {})
-// Returns: { success: true, diagram: string, stats: {} }
-```
+- **Name**: `GET_WORLDVIEW`
+- **Similes**: `SHOW_WORLDVIEW`, `VIEW_WORLDVIEW`
+- **Returns**: Mermaid diagram and statistics
 
 ### QUERY_WORLDVIEW
 Query entities in the worldview:
-
-```typescript
-const result = await runtime.executeAction('QUERY_WORLDVIEW', {
-  content: { text: 'entity: USER' }
-})
-// Returns: { success: true, entities: [...], count: number }
-```
+- **Name**: `QUERY_WORLDVIEW`  
+- **Similes**: `SEARCH_WORLDVIEW`, `FIND_ENTITIES`
+- **Usage**: Include "entity: TYPE" in message text
+- **Returns**: Matching entities
 
 ### GET_SUGGESTIONS
-Get pending suggestions:
-
-```typescript
-const result = await runtime.executeAction('GET_SUGGESTIONS', {})
-// Returns: { success: true, suggestions: [...], count: number }
-```
+Get pending worldview suggestions:
+- **Name**: `GET_SUGGESTIONS`
+- **Similes**: `SHOW_SUGGESTIONS`, `VIEW_SUGGESTIONS`
+- **Returns**: Queue of pending suggestions with confidence scores
 
 ## Configuration
 
@@ -216,13 +205,13 @@ const result = await runtime.executeAction('GET_SUGGESTIONS', {})
 interface WorldviewConfig {
   // How often to check for patterns (default: 60000ms)
   evolutionIntervalMs?: number
-  
+
   // Auto-apply suggestions above this confidence (default: 0.9)
   autoApplyThreshold?: number
-  
+
   // Minimum co-occurrences for pattern detection (default: 3)
   minObservations?: number
-  
+
   // How many recent memories to analyze (default: 50)
   memoryLookback?: number
 }
@@ -251,7 +240,9 @@ const suggestions = observer.analyze(memories)
 ### Manual Ontology Management
 
 ```typescript
-const graph = plugin.getGraph()
+// Access graph through plugin state
+const state = pluginState.get(runtime.agentId)
+const graph = state.graph
 
 // Add entity
 graph.addEntity({
@@ -299,14 +290,14 @@ git log runtime/worldviews/agent-123.mermaid
 mmdc -i runtime/worldviews/agent-123.mermaid -o worldview.png
 ```
 
-## Future Extensions
+## Architecture Notes (ElizaOS 1.7.2)
 
-The lightweight ER foundation can evolve into more formal ontologies:
+This plugin uses the ElizaOS 1.7.2 Service architecture:
 
-1. **Phase 1** (Current): Basic ER graph with CRUD operations
-2. **Phase 2**: Inference rules (transitive relationships)
-3. **Phase 3**: Conflict detection and resolution
-4. **Phase 4**: Export to OWL/RDF for formal reasoning
+- **Service Class**: Extends `Service` base class with both instance and static methods
+- **State Management**: Uses global `pluginState` Map indexed by `agentId`
+- **Memory Access**: Uses `runtime.getMemories()` with required `tableName` parameter
+- **Logger**: Uses string-based logging format compatible with ElizaOS logger
 
 ## Environment Variables
 
@@ -319,21 +310,36 @@ WORLDVIEW_DIR=./my-worldviews
 
 ### Startup Log
 ```
-[Worldview] Initializing worldview plugin
-[Worldview] Loaded worldview { entities: 12, relationships: 18, avgConnections: 1.50 }
-[Worldview] Starting evolution loop { intervalMs: 60000 }
+[Worldview] Service starting...
+[Worldview] Loaded worldview - entities: 12, relationships: 18, avgConnections: 1.50
+[Worldview] Started evolution loop - intervalMs: 60000
+[Worldview] Service started successfully
 ```
 
 ### Evolution Log
 ```
-[Worldview] Generated suggestions { count: 3, highConfidence: 1 }
-[Worldview] Auto-applied suggestion { 
-  type: 'new_relationship',
-  confidence: 0.92,
-  preview: 'USER ||--o{ PREFERENCE : has'
-}
-[Worldview] Evolution complete { applied: 1, queued: 2, entities: 13, relationships: 19 }
+[Worldview] Generated suggestions - count: 3, highConfidence: 1
+[Worldview] Auto-applied suggestion - type: new_relationship, confidence: 0.92, preview: USER ||--o{ PREFERENCE : has
+[Worldview] Evolution complete - applied: 1, queued: 2, entities: 13, relationships: 19
 ```
+
+## Migration from v0.1.0
+
+If upgrading from v0.1.0 (ElizaOS 0.1.x):
+
+1. Update peer dependency: `@ai16z/eliza` → `@elizaos/core`
+2. Import paths remain the same
+3. Plugin initialization remains the same
+4. Existing worldview files are compatible
+
+## Future Extensions
+
+The lightweight ER foundation can evolve into more formal ontologies:
+
+1. **Phase 1** (Current): Basic ER graph with CRUD operations
+2. **Phase 2**: Inference rules (transitive relationships)
+3. **Phase 3**: Conflict detection and resolution
+4. **Phase 4**: Export to OWL/RDF for formal reasoning
 
 ## Contributing
 

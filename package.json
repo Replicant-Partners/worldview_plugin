@@ -1,6 +1,6 @@
 {
   "name": "@eliza/plugin-worldview",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "ElizaOS plugin providing agents with evolving ontological worldviews",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,15 +22,17 @@
   "author": "Ivan",
   "license": "MIT",
   "peerDependencies": {
-    "@ai16z/eliza": "^0.1.0"
+    "@elizaos/core": "^1.7.0"
   },
   "devDependencies": {
+    "@elizaos/core": "^1.7.2",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "src"
   ],
   "dependencies": {
     "@lancedb/lancedb": "^0.23.0",
