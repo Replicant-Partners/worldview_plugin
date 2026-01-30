@@ -92,7 +92,7 @@ export class EntityEnrichmentService {
       const syntactic = this.syntacticEnricher.enrich(entity);
 
       // Step 2: Lexical enrichment (LLM-powered)
-      const lexical = await this.lexicalEnricher.enrich(entity, syntactic);
+      const lexical = await this.lexicalEnricher.enrich(entity);
 
       // Step 3: Semantic enrichment (relationship context)
       const semantic = this.semanticEnricher.enrich(entity);

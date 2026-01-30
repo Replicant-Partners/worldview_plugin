@@ -42,7 +42,8 @@ export class WorldviewPlugin implements Plugin {
   private retrievalAgent: RetrievalAgent | null = null;
   private matchingAgent: MatchingAgent | null = null;
   private suggestionQueue: Suggestion[] = [];
-  private config: WorldviewConfig & {
+  public config: {
+    [key: string]: string | number | boolean | any;
     evolutionIntervalMs: number;
     autoApplyThreshold: number;
     minObservations: number;
@@ -91,7 +92,7 @@ export class WorldviewPlugin implements Plugin {
 
     // Load or create worldview graph
     const worldviewPath = join(
-      runtime.getSetting("WORLDVIEW_DIR") || "runtime/worldviews",
+      String(runtime.getSetting("WORLDVIEW_DIR") || "") || "runtime/worldviews",
       `${runtime.agentId}.mermaid`,
     );
 
@@ -196,9 +197,10 @@ export class WorldviewPlugin implements Plugin {
     if (!this.graph) return;
 
     // Get recent memories
-    const memories = await runtime.messageManager.getMemories({
+    const memories = await runtime.getMemories({
       roomId: runtime.agentId,
       count: this.config.memoryLookback,
+      tableName: "memories",
     });
 
     if (memories.length === 0) return;
@@ -344,8 +346,12 @@ export class WorldviewPlugin implements Plugin {
       examples: [
         [
           {
-            user: "user",
+            user: "{{user1}}",
             content: { text: "What entities do you know about?" },
+          },
+          {
+            user: "{{agent}}",
+            content: { text: "I currently know about several entities in my worldview." },
           },
         ],
       ],

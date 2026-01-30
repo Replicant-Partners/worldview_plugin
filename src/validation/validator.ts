@@ -20,7 +20,7 @@ import { Entity, Suggestion, ValidationResult } from "../types";
 
 export interface ValidatorConfig {
   enabled?: boolean; // Enable validation (default: true)
-  model?: ModelClass; // Model to use (default: LARGE for better reasoning)
+  model?: typeof ModelClass; // Model to use (default: LARGE for better reasoning)
   modelName?: string; // Specific model name (e.g., "gpt-4o", "claude-opus-4-5")
   maxRetries?: number; // Max retries on error (default: 2)
   minConfidenceBoost?: number; // Boost for validated suggestions (default: 0.1)
